@@ -3,67 +3,86 @@ version: '3.8'
 services:
   gui:
     build:
-      context: ./gui
+      context: .
+      dockerfile: ./gui/Dockerfile
     container_name: gui
     hostname: gui
     networks:
       aeropuerto_net:
         ipv4_address: 192.168.100.100
     environment:
-    - DISPLAY=${DISPLAY}
+      - DISPLAY=${DISPLAY}
     volumes:
-    - /tmp/.X11-unix:/tmp/.X11-unix
+      - /tmp/.X11-unix:/tmp/.X11-unix
     tty: true
     stdin_open: true
 
   nodo1:
     build:
-      context: ./nodo1
+      context: .
     container_name: nodo1
     hostname: nodo1
-    volumes:
-      - ./ssh:/home/mpiuser/.ssh:ro
     networks:
       aeropuerto_net:
         ipv4_address: 192.168.100.11
+    volumes:
+      - ./ssh:/home/mpiuser/.ssh:ro
+      - ./ssh/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key:ro
+      - ./ssh/ssh_host_rsa_key.pub:/etc/ssh/ssh_host_rsa_key.pub:ro
+      - ./ssh/ssh_host_ecdsa_key:/etc/ssh/ssh_host_ecdsa_key:ro
+      - ./ssh/ssh_host_ecdsa_key.pub:/etc/ssh/ssh_host_ecdsa_key.pub:ro
+      - ./ssh/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key:ro
+      - ./ssh/ssh_host_ed25519_key.pub:/etc/ssh/ssh_host_ed25519_key.pub:ro
+      - ./ssh/mpi_cluster_key:/home/mpiuser/.ssh/mpi_cluster_key:ro
+      - ./ssh/mpi_cluster_key.pub:/home/mpiuser/.ssh/mpi_cluster_key.pub:ro
     tty: true
     stdin_open: true
-    environment:
-    - GUI_HOST=192.168.100.100
     ports:
-      - "2201:22"  
+      - "2201:22"
 
   nodo2:
     build:
-      context: ./nodo2
+      context: .
     container_name: nodo2
     hostname: nodo2
-    volumes:
-      - ./ssh:/home/mpiuser/.ssh:ro
     networks:
       aeropuerto_net:
         ipv4_address: 192.168.100.12
+    volumes:
+      - ./ssh:/home/mpiuser/.ssh:ro
+      - ./ssh/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key:ro
+      - ./ssh/ssh_host_rsa_key.pub:/etc/ssh/ssh_host_rsa_key.pub:ro
+      - ./ssh/ssh_host_ecdsa_key:/etc/ssh/ssh_host_ecdsa_key:ro
+      - ./ssh/ssh_host_ecdsa_key.pub:/etc/ssh/ssh_host_ecdsa_key.pub:ro
+      - ./ssh/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key:ro
+      - ./ssh/ssh_host_ed25519_key.pub:/etc/ssh/ssh_host_ed25519_key.pub:ro
+      - ./ssh/mpi_cluster_key:/home/mpiuser/.ssh/mpi_cluster_key:ro
+      - ./ssh/mpi_cluster_key.pub:/home/mpiuser/.ssh/mpi_cluster_key.pub:ro 
     tty: true
     stdin_open: true
-    environment:
-    - GUI_HOST=192.168.100.100
     ports:
       - "2202:22"
 
   nodo3:
     build:
-      context: ./nodo3
+      context: .
     container_name: nodo3
     hostname: nodo3
-    volumes:
-      - ./ssh:/home/mpiuser/.ssh:ro
     networks:
       aeropuerto_net:
         ipv4_address: 192.168.100.13
+    volumes:
+      - ./ssh:/home/mpiuser/.ssh:ro
+      - ./ssh/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key:ro
+      - ./ssh/ssh_host_rsa_key.pub:/etc/ssh/ssh_host_rsa_key.pub:ro
+      - ./ssh/ssh_host_ecdsa_key:/etc/ssh/ssh_host_ecdsa_key:ro
+      - ./ssh/ssh_host_ecdsa_key.pub:/etc/ssh/ssh_host_ecdsa_key.pub:ro
+      - ./ssh/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key:ro
+      - ./ssh/ssh_host_ed25519_key.pub:/etc/ssh/ssh_host_ed25519_key.pub:ro
+      - ./ssh/mpi_cluster_key:/home/mpiuser/.ssh/mpi_cluster_key:ro
+      - ./ssh/mpi_cluster_key.pub:/home/mpiuser/.ssh/mpi_cluster_key.pub:ro
     tty: true
     stdin_open: true
-    environment:
-    - GUI_HOST=192.168.100.100
     ports:
       - "2203:22"
 
