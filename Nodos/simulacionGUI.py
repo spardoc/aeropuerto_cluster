@@ -39,6 +39,12 @@ ventana.configure(bg="white")
 canvas = Canvas(ventana, width=ANCHO-20, height=ALTO-20, bg="white")
 canvas.pack(padx=10, pady=10)
 
+# Fondo
+img_fondo = Image.open("images/aero.png").resize((ANCHO-20, ALTO-20), Image.Resampling.LANCZOS)
+img_fondo_tk = ImageTk.PhotoImage(img_fondo)
+canvas.create_image(0, 0, anchor="nw", image=img_fondo_tk)
+canvas.image_refs = [img_fondo_tk]  # Inicializa la lista con la imagen de fondo
+
 # Imágenes
 img_puerta = ImageTk.PhotoImage(Image.open("images/gate.png").resize((30, 30), Image.Resampling.LANCZOS))
 img_pasajero = ImageTk.PhotoImage(Image.open("images/passenger.png").resize((20, 30), Image.Resampling.LANCZOS))
