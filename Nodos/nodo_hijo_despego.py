@@ -33,6 +33,11 @@ def procesar_vuelo_salida(avion):
                         "pasajeros": avion.pasajeros,
                         "estado": "en_puerta"
                     }), dest=0)
+                    comm.send(("estado_avion", {
+                        "id": avion.id,
+                        "estado": "abordando",
+                        "puerta": puerta_asignada  
+                    }), dest=5)
                     break
 
         if puerta_asignada is None:
@@ -47,7 +52,10 @@ def procesar_vuelo_salida(avion):
         "id": avion.id,
         "estado": "abordando"
     }), dest=0)
-
+    comm.send(("estado_avion", {
+        "id": avion.id,
+        "estado": "abordando"
+    }), dest=5)
     while abordados < avion.pasajeros:
         nuevos = 1
         abordados += nuevos
@@ -61,8 +69,11 @@ def procesar_vuelo_salida(avion):
         "id": avion.id,
         "estado": "en pista"
     }), dest=0)
-
-
+    comm.send(("estado_avion", {
+        "id": avion.id,
+        "estado": "en pista"
+    }), dest=5)
+    
     # Liberar puerta
     with lock:
         for puerta in puertas:
@@ -70,6 +81,8 @@ def procesar_vuelo_salida(avion):
                 puerta['ocupada'] = False
                 print(f"[Salida] Puerta {puerta_asignada} liberada por vuelo {avion.id}", flush=True)
                 break
+    time.sleep(3)
+
     print(f"[Rank {comm.Get_rank()}] Waiting for takeoff authorization...", flush=True)
     msg = comm.recv(source=0)
     print(f"[Rank {comm.Get_rank()}] Message received: {msg}", flush=True)
@@ -83,6 +96,7 @@ def procesar_vuelo_salida(avion):
             "estado": "despegando"
         })
         comm.send(msg, dest=0)
+        comm.send(msg, dest=5)
         time.sleep(3)
         
         msg = ("estado_avion", {
@@ -90,7 +104,8 @@ def procesar_vuelo_salida(avion):
             "estado": "en vuelo"
         })
         comm.send(msg, dest=0)
-        
+        comm.send(msg, dest=5)
+        time.sleep(3)
         comm.send(("finalizado", avion.id), dest=0)
 
 
@@ -99,7 +114,7 @@ def lanzar_vuelos_continuamente():
         avion = crear_avion_salida()
         t = Thread(target=procesar_vuelo_salida, args=(avion,), daemon=True)
         t.start()
-        time.sleep(random.uniform(1, 5))
+        time.sleep(random.uniform(3, 8))
 
 
 def crear_avion_salida():

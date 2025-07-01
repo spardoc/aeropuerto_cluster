@@ -66,7 +66,7 @@ def adminstrarVuelosLlegando():
                         comm.send(("actualizar_estados", {
                             "aviones": dict(estados_aviones),
                             "cola": list(cola_en_llegada)
-                        }), dest=gui_rank)
+                        }), dest=gui_rank)  
 
             time.sleep(0.01)
 

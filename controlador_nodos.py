@@ -9,11 +9,7 @@ if rank == 0:
     from Nodos.nodo_padre_Vuelo_Salida import adminstrarVuelosEntrada
     print("[Nodo 0] Nodo maestro iniciado")
     
-    # Solo se lanza el hilo de administración
-    Thread(target=adminstrarVuelosEntrada, daemon=True).start()
-    # Mantener el proceso vivo
-    while True:
-        time.sleep(1)
+    adminstrarVuelosEntrada()
 
 elif rank == 1:
     from Nodos.nodo_hijo_despego import lanzar_vuelos_continuamente
@@ -35,4 +31,10 @@ elif rank == 4:
     print("[Nodo 4] Nodo maestro de vuelos llegada")
     
     adminstrarVuelosLlegando()
+
+elif rank == 5:
+    from Nodos.simulacionGUI import iniciar_simulacion
+    print("[Nodo 5] Nodo Simulacion")
+    iniciar_simulacion()
+
 

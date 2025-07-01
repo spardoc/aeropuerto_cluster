@@ -31,6 +31,10 @@ def procesar_vuelo_llegada(avion):
         "id": avion.id,
         "pasajeros": avion.pasajeros
     }), dest=4)
+    comm.send(("solicitud_aterrizaje", {
+        "id": avion.id,
+        "pasajeros": avion.pasajeros
+    }), dest=5)
     time.sleep(3)
     # 2. Esperar autorización
     while True:
@@ -58,6 +62,12 @@ def procesar_vuelo_llegada(avion):
                         "pasajeros": avion.pasajeros,
                         "estado": "aterrizado"
                     }), dest=4)
+                    comm.send(("registro_llegada", {
+                        "id": avion.id,
+                        "puerta": puerta_asignada,
+                        "pasajeros": avion.pasajeros,
+                        "estado": "aterrizado"
+                    }), dest=5)
                     time.sleep(3)
                     break
         if puerta_asignada is None:
@@ -69,6 +79,11 @@ def procesar_vuelo_llegada(avion):
         "id": avion.id,
         "estado": "aterrizando"
     }), dest=4)
+    comm.send(("estado_avion", {
+        "id": avion.id,
+        "estado": "aterrizando",
+        "puerta": puerta_asignada
+    }), dest=5)
     time.sleep(2)
 
     # 5. Desembarque
@@ -76,7 +91,11 @@ def procesar_vuelo_llegada(avion):
         "id": avion.id,
         "estado": "desembarcando"
     }), dest=4)
-
+    comm.send(("estado_avion", {
+        "id": avion.id,
+        "estado": "desembarcando",
+        "puerta": puerta_asignada
+    }), dest=5)
     while avion.pasajeros > 0:
         avion.pasajeros = avion.pasajeros - 1
         time.sleep(random.uniform(0.2, 0.7))
@@ -86,6 +105,11 @@ def procesar_vuelo_llegada(avion):
         "id": avion.id,
         "estado": "finalizado"
     }), dest=4)
+    comm.send(("estado_avion", {
+        "id": avion.id,
+        "estado": "finalizado",
+        "puerta": puerta_asignada
+    }), dest=5)
 
     # 7. Liberar puerta
     with lock:
