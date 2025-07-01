@@ -23,6 +23,7 @@ def procesar_vuelo_llegada(avion):
         "id": avion.id,
         "estado": "esperando autorización"
     }), dest=4)
+    time.sleep(3)
 
     # 1. Solicitar aterrizaje
     print(f"[Llegada] Vuelo {avion.id} solicitando aterrizaje", flush=True)
@@ -30,7 +31,7 @@ def procesar_vuelo_llegada(avion):
         "id": avion.id,
         "pasajeros": avion.pasajeros
     }), dest=4)
-
+    time.sleep(3)
     # 2. Esperar autorización
     while True:
         if comm.Iprobe(source=4):
@@ -56,7 +57,8 @@ def procesar_vuelo_llegada(avion):
                         "puerta": puerta_asignada,
                         "pasajeros": avion.pasajeros,
                         "estado": "aterrizado"
-                    }), dest=0)
+                    }), dest=4)
+                    time.sleep(3)
                     break
         if puerta_asignada is None:
             print(f"[Rank {comm.Get_rank()}] Vuelo {avion.id} esperando puerta libre...", flush=True)
