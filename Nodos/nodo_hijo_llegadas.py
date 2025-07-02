@@ -41,7 +41,7 @@ def procesar_vuelo_llegada(avion):
     time.sleep(3)
     # 2. Esperar autorización
     while True:
-        if comm.Iprobe(source=4):
+        if comm.Get_size() > 4 and comm.Iprobe(source=4):
             tipo, contenido = comm.recv(source=4)
             if tipo == "autorizado_para_aterrizar" and contenido["id"] == avion.id:
                 print(f"[Llegada] Vuelo {avion.id} autorizado para aterrizar", flush=True)
