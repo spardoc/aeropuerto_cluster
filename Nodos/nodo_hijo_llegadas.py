@@ -19,18 +19,20 @@ lock = Lock()
 
 def procesar_vuelo_llegada(avion):
     global puertas, lock
-    comm.send(("estado_avion", {
-        "id": avion.id,
-        "estado": "esperando autorización"
-    }), dest=4)
+    if comm.Get_size() > 4:
+        comm.send(("estado_avion", {
+            "id": avion.id,
+            "estado": "esperando autorización"
+        }), dest=4)
     time.sleep(3)
 
     # 1. Solicitar aterrizaje
     print(f"[Llegada] Vuelo {avion.id} solicitando aterrizaje", flush=True)
-    comm.send(("solicitud_aterrizaje", {
-        "id": avion.id,
-        "pasajeros": avion.pasajeros
-    }), dest=4)
+    if comm.Get_size() > 4:
+        comm.send(("solicitud_aterrizaje", {
+            "id": avion.id,
+            "pasajeros": avion.pasajeros
+        }), dest=4)
     if comm.Get_size() > 5:
         comm.send(("solicitud_aterrizaje", {
             "id": avion.id,
@@ -57,12 +59,13 @@ def procesar_vuelo_llegada(avion):
                     print(f"[Llegada] Vuelo {avion.id} asignado a puerta {puerta_asignada}", flush=True)
 
                     # Registrar llegada
-                    comm.send(("registro_llegada", {
-                        "id": avion.id,
-                        "puerta": puerta_asignada,
-                        "pasajeros": avion.pasajeros,
-                        "estado": "aterrizado"
-                    }), dest=4)
+                    if comm.Get_size() > 4:
+                        comm.send(("registro_llegada", {
+                            "id": avion.id,
+                            "puerta": puerta_asignada,
+                            "pasajeros": avion.pasajeros,
+                            "estado": "aterrizado"
+                        }), dest=4)
                     if comm.Get_size() > 5:
                         comm.send(("registro_llegada", {
                             "id": avion.id,
@@ -77,10 +80,11 @@ def procesar_vuelo_llegada(avion):
             time.sleep(1)
 
     # 4. Aterrizando
-    comm.send(("estado_avion", {
-        "id": avion.id,
-        "estado": "aterrizando"
-    }), dest=4)
+    if comm.Get_size() > 4:
+        comm.send(("estado_avion", {
+            "id": avion.id,
+            "estado": "aterrizando"
+        }), dest=4)
     if comm.Get_size() > 5:
         comm.send(("estado_avion", {
             "id": avion.id,
@@ -90,10 +94,11 @@ def procesar_vuelo_llegada(avion):
     time.sleep(2)
 
     # 5. Desembarque
-    comm.send(("estado_avion", {
-        "id": avion.id,
-        "estado": "desembarcando"
-    }), dest=4)
+    if comm.Get_size() > 4:
+        comm.send(("estado_avion", {
+            "id": avion.id,
+            "estado": "desembarcando"
+        }), dest=4)
     if comm.Get_size() > 5:
         comm.send(("estado_avion", {
             "id": avion.id,
@@ -105,10 +110,11 @@ def procesar_vuelo_llegada(avion):
         time.sleep(random.uniform(0.2, 0.7))
 
     # 6. Finalizado
-    comm.send(("estado_avion", {
-        "id": avion.id,
-        "estado": "finalizado"
-    }), dest=4)
+    if comm.Get_size() > 4:
+        comm.send(("estado_avion", {
+            "id": avion.id,
+            "estado": "finalizado"
+        }), dest=4)
     if comm.Get_size() > 5:
         comm.send(("estado_avion", {
             "id": avion.id,
