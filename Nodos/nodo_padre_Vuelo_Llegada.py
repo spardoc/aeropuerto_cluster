@@ -62,11 +62,11 @@ def adminstrarVuelosLlegando():
 
                     # 🔁 Enviar actualización a la GUI
                     with lock_estados, lock_cola:
-                        if comm.Get_size() > 2:
+                        if comm.Get_size() > 5:
                             comm.send(("actualizar_estados", {
                                 "aviones": dict(estados_aviones),
                                 "cola": list(cola_en_llegada)
-                            }), dest=2)  
+                            }), dest=5)
 
             time.sleep(0.01)
 
