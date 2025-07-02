@@ -1,51 +1,62 @@
-from threading import Thread
+from threading import Thread, Lock
 import time
 import random
 from mpi4py import MPI
 from modelos.avion import Avion  # Asegúrate de que sea reutilizable para llegadas
-from threading import Lock
-lock = Lock()
 
 # --- MPI ---
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
+size = comm.Get_size()
 
-# --- Constantes para llegadas ---
+# --- Constantes ---
 PREFIJOS_LLEGADA = ["AV", "UX", "EK", "CM"]
 PUERTAS_IDS = ["Z1", "Z2", "Y1", "Y2", "X3", "X5"]
 puertas = [{'id': pid, 'ocupada': False} for pid in PUERTAS_IDS]
 lock = Lock()
 
+# --- Flags de nodos existentes ---
+TIENE_PADRE_LLEGADAS = size > 4
+TIENE_GUI_SIMULACION = size > 5
+
 
 def procesar_vuelo_llegada(avion):
-    global puertas, lock
-    if comm.Get_size() > 4:
+    global puertas
+
+    if TIENE_PADRE_LLEGADAS:
         comm.send(("estado_avion", {
             "id": avion.id,
             "estado": "esperando autorización"
         }), dest=4)
     time.sleep(3)
 
-    # 1. Solicitar aterrizaje
     print(f"[Llegada] Vuelo {avion.id} solicitando aterrizaje", flush=True)
-    if comm.Get_size() > 4:
+
+    if TIENE_PADRE_LLEGADAS:
         comm.send(("solicitud_aterrizaje", {
             "id": avion.id,
             "pasajeros": avion.pasajeros
         }), dest=4)
-    if comm.Get_size() > 5:
+
+    if TIENE_GUI_SIMULACION:
         comm.send(("solicitud_aterrizaje", {
             "id": avion.id,
             "pasajeros": avion.pasajeros
         }), dest=5)
+
     time.sleep(3)
+
     # 2. Esperar autorización
     while True:
-        if comm.Get_size() > 4 and comm.Iprobe(source=4):
-            tipo, contenido = comm.recv(source=4)
-            if tipo == "autorizado_para_aterrizar" and contenido["id"] == avion.id:
-                print(f"[Llegada] Vuelo {avion.id} autorizado para aterrizar", flush=True)
-                break
+        if TIENE_PADRE_LLEGADAS:
+            try:
+                if comm.Iprobe(source=4):
+                    tipo, contenido = comm.recv(source=4)
+                    if tipo == "autorizado_para_aterrizar" and contenido["id"] == avion.id:
+                        print(f"[Llegada] Vuelo {avion.id} autorizado para aterrizar", flush=True)
+                        break
+            except MPI.Exception as e:
+                print(f"[ERROR] Falló Iprobe/recv desde 4: {e}", flush=True)
         time.sleep(0.5)
 
     # 3. Buscar puerta disponible
@@ -58,64 +69,70 @@ def procesar_vuelo_llegada(avion):
                     puerta_asignada = puerta['id']
                     print(f"[Llegada] Vuelo {avion.id} asignado a puerta {puerta_asignada}", flush=True)
 
-                    # Registrar llegada
-                    if comm.Get_size() > 4:
+                    if TIENE_PADRE_LLEGADAS:
                         comm.send(("registro_llegada", {
                             "id": avion.id,
                             "puerta": puerta_asignada,
                             "pasajeros": avion.pasajeros,
                             "estado": "aterrizado"
                         }), dest=4)
-                    if comm.Get_size() > 5:
+
+                    if TIENE_GUI_SIMULACION:
                         comm.send(("registro_llegada", {
                             "id": avion.id,
                             "puerta": puerta_asignada,
                             "pasajeros": avion.pasajeros,
                             "estado": "aterrizado"
                         }), dest=5)
+
                     time.sleep(3)
                     break
         if puerta_asignada is None:
-            print(f"[Rank {comm.Get_rank()}] Vuelo {avion.id} esperando puerta libre...", flush=True)
+            print(f"[Rank {rank}] Vuelo {avion.id} esperando puerta libre...", flush=True)
             time.sleep(1)
 
     # 4. Aterrizando
-    if comm.Get_size() > 4:
+    if TIENE_PADRE_LLEGADAS:
         comm.send(("estado_avion", {
             "id": avion.id,
             "estado": "aterrizando"
         }), dest=4)
-    if comm.Get_size() > 5:
+
+    if TIENE_GUI_SIMULACION:
         comm.send(("estado_avion", {
             "id": avion.id,
             "estado": "aterrizando",
             "puerta": puerta_asignada
         }), dest=5)
+
     time.sleep(2)
 
     # 5. Desembarque
-    if comm.Get_size() > 4:
+    if TIENE_PADRE_LLEGADAS:
         comm.send(("estado_avion", {
             "id": avion.id,
             "estado": "desembarcando"
         }), dest=4)
-    if comm.Get_size() > 5:
+
+    if TIENE_GUI_SIMULACION:
         comm.send(("estado_avion", {
             "id": avion.id,
             "estado": "desembarcando",
             "puerta": puerta_asignada
         }), dest=5)
+
     while avion.pasajeros > 0:
-        avion.pasajeros = avion.pasajeros - 1
+        avion.pasajeros -= 1
         time.sleep(random.uniform(0.2, 0.7))
 
     # 6. Finalizado
-    if comm.Get_size() > 4:
+    if TIENE_PADRE_LLEGADAS:
         comm.send(("estado_avion", {
             "id": avion.id,
             "estado": "finalizado"
         }), dest=4)
-    if comm.Get_size() > 5:
+
+    if TIENE_GUI_SIMULACION:
         comm.send(("estado_avion", {
             "id": avion.id,
             "estado": "finalizado",
@@ -142,4 +159,4 @@ def lanzar_vuelos_continuamente():
 def crear_avion_Llegada():
     vuelo_id = random.choice(PREFIJOS_LLEGADA) + str(random.randint(100, 999))
     pasajeros = random.randint(10, 50)
-    return Avion(vuelo_id, "salida", pasajeros)
+    return Avion(vuelo_id, "llegada", pasajeros)

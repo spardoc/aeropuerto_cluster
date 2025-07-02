@@ -1,5 +1,11 @@
 import os
 from mpi4py import MPI
+import sys
+
+# Verificar si hay entorno gráfico disponible
+if not os.environ.get("DISPLAY"):
+    print("[GUI] ERROR: No se puede iniciar la interfaz, DISPLAY no está definido.")
+    sys.exit(0)  # O return si estás dentro de una función
 
 comm = MPI.COMM_WORLD
 size = comm.Get_size()
