@@ -1,14 +1,16 @@
+import os
 from mpi4py import MPI
-from threading import Thread
-import time
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
+# Permitir asignar rank manualmente para ejecuciones fuera de mpiexec
+if "MPI_RANK" in os.environ:
+    rank = int(os.environ["MPI_RANK"])
+
 if rank == 0:
     from Nodos.nodo_padre_Vuelo_Salida import adminstrarVuelosEntrada
     print("[Nodo 0] Nodo maestro iniciado")
-    
     adminstrarVuelosEntrada()
 
 elif rank == 1:
@@ -29,12 +31,9 @@ elif rank == 3:
 elif rank == 4:
     from Nodos.nodo_padre_Vuelo_Llegada import adminstrarVuelosLlegando
     print("[Nodo 4] Nodo maestro de vuelos llegada")
-    
     adminstrarVuelosLlegando()
 
 elif rank == 5:
     from Nodos.simulacionGUI import iniciar_simulacion
     print("[Nodo 5] Nodo Simulacion")
     iniciar_simulacion()
-
-

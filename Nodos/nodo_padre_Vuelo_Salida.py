@@ -3,7 +3,6 @@ import threading
 import time
 
 comm = MPI.COMM_WORLD
-gui_rank = 2  # GUI ahora en el proceso rank 2
 
 # Recursos compartidos
 cola_en_pista = []
@@ -64,10 +63,11 @@ def adminstrarVuelosEntrada():
 
                     # 🔁 Enviar actualización a la GUI
                     with lock_estados, lock_cola:
-                        comm.send(("actualizar_estados", {
-                            "aviones": dict(estados_aviones),
-                            "cola": list(cola_en_pista)
-                        }), dest=gui_rank)
+                        if comm.Get_size() > 2:
+                            comm.send(("actualizar_estados", {
+                                "aviones": dict(estados_aviones),
+                                "cola": list(cola_en_pista)
+                            }), dest=2)
 
             time.sleep(0.01)
         except Exception as e:

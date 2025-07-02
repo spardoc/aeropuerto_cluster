@@ -33,11 +33,12 @@ def procesar_vuelo_salida(avion):
                         "pasajeros": avion.pasajeros,
                         "estado": "en_puerta"
                     }), dest=0)
-                    comm.send(("estado_avion", {
-                        "id": avion.id,
-                        "estado": "abordando",
-                        "puerta": puerta_asignada  
-                    }), dest=5)
+                    if comm.Get_size() > 5:
+                        comm.send(("estado_avion", {
+                            "id": avion.id,
+                            "estado": "abordando",
+                            "puerta": puerta_asignada  
+                        }), dest=5)
                     break
 
         if puerta_asignada is None:
@@ -52,10 +53,11 @@ def procesar_vuelo_salida(avion):
         "id": avion.id,
         "estado": "abordando"
     }), dest=0)
-    comm.send(("estado_avion", {
-        "id": avion.id,
-        "estado": "abordando"
-    }), dest=5)
+    if comm.Get_size() > 5:
+        comm.send(("estado_avion", {
+            "id": avion.id,
+            "estado": "abordando"
+        }), dest=5)
     while abordados < avion.pasajeros:
         nuevos = 1
         abordados += nuevos
@@ -69,10 +71,11 @@ def procesar_vuelo_salida(avion):
         "id": avion.id,
         "estado": "en pista"
     }), dest=0)
-    comm.send(("estado_avion", {
-        "id": avion.id,
-        "estado": "en pista"
-    }), dest=5)
+    if comm.Get_size() > 5:
+        comm.send(("estado_avion", {
+            "id": avion.id,
+            "estado": "en pista"
+        }), dest=5)
     
     # Liberar puerta
     with lock:
@@ -96,7 +99,8 @@ def procesar_vuelo_salida(avion):
             "estado": "despegando"
         })
         comm.send(msg, dest=0)
-        comm.send(msg, dest=5)
+        if comm.Get_size() > 5:
+            comm.send(msg, dest=5)
         time.sleep(3)
         
         msg = ("estado_avion", {
@@ -104,7 +108,8 @@ def procesar_vuelo_salida(avion):
             "estado": "en vuelo"
         })
         comm.send(msg, dest=0)
-        comm.send(msg, dest=5)
+        if comm.Get_size() > 5:
+            comm.send(msg, dest=5)
         time.sleep(3)
         comm.send(("finalizado", avion.id), dest=0)
 
