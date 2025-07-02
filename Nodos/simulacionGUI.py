@@ -12,20 +12,20 @@ ANCHO, ALTO = 1000, 800
 
 # Coordenadas puertas de salida (superiores)
 coordenadas_salida = {
-    "A1": (460, 320),
-    "A2": (500, 320),
-    "B1": (540, 320),
-    "B2": (580, 320),
-    "C3": (620, 320),
-    "C5": (660, 320)
+    "A1": (460, 240),
+    "A2": (500, 240),
+    "B1": (540, 240),
+    "B2": (580, 240),
+    "C3": (620, 240),
+    "C5": (660, 240)
 }
 coordenadas_llegada = {
-    "Z1": (460, 560),
-    "Z2": (500, 560),
-    "Y1": (540, 560),
-    "Y2": (580, 560),
-    "X3": (620, 560),
-    "X5": (660, 560)
+    "Z1": (460, 480),
+    "Z2": (500, 480),
+    "Y1": (540, 480),
+    "Y2": (580, 480),
+    "X3": (620, 480),
+    "X5": (660, 480)
 }
 # Lista de aviones actualmente en pista
 aviones_en_pista = []
@@ -40,7 +40,7 @@ canvas = Canvas(ventana, width=ANCHO-20, height=ALTO-20, bg="white")
 canvas.pack(padx=10, pady=10)
 
 # Fondo
-img_fondo = Image.open("images/aero.png").resize((ANCHO-20, ALTO-20), Image.Resampling.LANCZOS)
+img_fondo = Image.open("images/aero.png").resize((ANCHO-20, ALTO-30), Image.Resampling.LANCZOS)
 img_fondo_tk = ImageTk.PhotoImage(img_fondo)
 canvas.create_image(0, 0, anchor="nw", image=img_fondo_tk)
 canvas.image_refs = [img_fondo_tk]  # Inicializa la lista con la imagen de fondo
@@ -115,7 +115,7 @@ def dibujar_puertas():
             
     # --- Terminal ---
     x_terminal = ANCHO // 2 - 50
-    y_terminal = 390
+    y_terminal = 305
     canvas.create_image(x_terminal, y_terminal, anchor="nw", image=img_terminal, tags="puerta")
 
     canvas.update()
